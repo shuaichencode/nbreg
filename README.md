@@ -20,3 +20,4 @@ Main_CreateData.r: main program which simulates the data using Data_Gen.r and sa
 Main_NBR.r: main program which reads in the .csv datasets and performs net-benefit regression methods     
 Data_Gen.r: program for data generation, used by Main_CreateData.r    
 Est_NBR.r: program for net-benefit regressions and doubly robust methods for censored data, used by Main_NBR.r    
+nbreg_help.pdf: Technical details and explanation of sample R code and output
