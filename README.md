@@ -1,5 +1,5 @@
 # nbreg
- ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 DESCRIPTION:    
 Sample R code to illustrate how to perform net-benefit regression methods using a simulated censored observational data
 
@@ -8,8 +8,8 @@ Chen S, Hoch JS. Net-benefit regression with censored cost-effectiveness data fr
 https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.9486
 
 CODE AUTHOR:  
-Shuai Chen  <shschen@ucdavis.edu>          
-Division of Biostatistics, Department of Public Health Sciences, University of California, Davis     
+Shuai Chen  <shschen@ucdavis.edu>, Division of Biostatistics, Department of Public Health Sciences, University of California, Davis         
+    
 ------------------------------------------------------------------------------
 
 FILES:
