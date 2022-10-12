@@ -1,7 +1,7 @@
 # nbreg
 ------------------------------------------------------------------------------
 DESCRIPTION:    
-Sample R code to illustrate how to perform net-benefit regression methods using a simulated censored observational data
+Sample R code to illustrate how to perform net-benefit regression methods using a simulated censored observational cost-effectiveness data
 
 REFERENCE:    
 Chen S, Hoch JS. Net-benefit regression with censored cost-effectiveness data from randomized or observational studies. Stat Med. 2022
