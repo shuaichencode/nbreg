@@ -3,10 +3,6 @@
 DESCRIPTION:    
 Sample R code to illustrate how to perform net-benefit regression methods using a simulated censored observational cost-effectiveness data
 
-REFERENCE:    
-Chen S, Hoch JS. Net-benefit regression with censored cost-effectiveness data from randomized or observational studies. Stat Med. 2022
-https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.9486
-
 CODE AUTHOR:  
 Shuai Chen  <shschen@ucdavis.edu> 
 Division of Biostatistics, Department of Public Health Sciences, University of California, Davis         
