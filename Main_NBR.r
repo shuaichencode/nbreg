@@ -8,9 +8,9 @@
 require(geepack)
 require(dplyr)
 
-#set the path to the folder with Est_NBR.r and dataset file (use "/" instead of "\" in path)
+#set the path to the folder with nbreg.r and dataset file (use "/" instead of "\" in path)
 setwd("Your Path")
-source("Est_NBR.r")	# load functions used to estimate
+source("nbreg.r")	# load nbreg functions for estimation
 
 ############### Read in data ###########
 
