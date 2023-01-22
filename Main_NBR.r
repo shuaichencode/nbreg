@@ -23,18 +23,18 @@ head(data)	#show first few rows of data
 data=data %>% mutate(across(c(Age65,LBBB,Female), as.factor))
 
 # check cost history data
-head(data[,9:23])
-head(data[,9:24])
+head(data[,8:22])
+head(data[,8:23])
 
 # QALY history data
-head(data[,25:39])
+head(data[,24:38])
 
 # check covariates
-head(data[,6:8])
+head(data[,5:7])
 
 # divide all costs by 1000 so that cost is in $1000
-data[,9:24]=data[,9:24]/1000
-head(data[,9:24])	#check cost again
+data[,8:23]=data[,8:23]/1000
+head(data[,8:23])	#check cost again
 
 table(data$Trt)
 #   0   1 
@@ -61,27 +61,27 @@ lambda=seq(0,6,0.5)	# choose WTP as a sequence from $0 to $6,000 for 1 additiona
 fit1<-nbreg(Followup=data$survival,		#follow-up time	
 	delta=data$dead,				#death indicator (1=dead,0=censor)
 	group=data$Trt,				#treatment indicator (1=considered treatment, 0=comparison)
-	Cost=data[,9:23],				#a matrix of cost history (recommended to better truncate cost by L)
-	Eff=data[,25:39],				#a matrix of effectiveness history (recommended to better truncate by L),default is survival if not provided
+	Cost=data[,8:22],				#a matrix of cost history (recommended to better truncate cost by L)
+	Eff=data[,24:38],				#a matrix of effectiveness history (recommended to better truncate by L),default is survival if not provided
 	Patition.times=1:15,			#end timepoints of intervals, meaning that intervals are [0,1],(1,2],...,(14,15] years for grouped costs
 	Method='SW',				#use Simple Weighted Method 
-	Z=data[,6:8],				#adjust 3 covariates in regressions (main effects), will do unadjusted regression if not provided
+	Z=data[,5:7],				#adjust 3 covariates in regressions (main effects), will do unadjusted regression if not provided
 	Eff.only=TRUE,				#also fit a effectiveness only regression (WTP lambda=NA, not belong to net-benefit regression)
 	Cost.only=TRUE,				#also fit a Cost only regression (equivalent to setting WTP lambda=0 and then switching sign of coef est)
-	lambda=lambda,				#WTP for 1 additional QALY
+	lambda=lambda,				#willingness-to-pay (WTP) for 1 additional QALY
 	L=10						#time limit within L years
 )
 # main results printed out, detailed results saved in fit1
 
 ## can simply fit cost-only and effect-only regressions to quickly calculate adjusted ICER, with lambda=NULL option
-fit1_0<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data[,9:23],
-	Eff=data[,25:39], Patition.times=1:15, Method='SW', Z=data[,6:8],	Eff.only=TRUE,Cost.only=TRUE,	L=10,
+fit1_0<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data[,8:22],
+	Eff=data[,24:38], Patition.times=1:15, Method='SW', Z=data[,5:7],	Eff.only=TRUE,Cost.only=TRUE,	L=10,
 	lambda=NULL 		#equivalently, can remove this option						
 )
 
 ## special case of no covariates (eg, for randomized studies), by removing the option Z= 
-fit1_1<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data[,9:23],
-	Eff=data[,25:39], Patition.times=1:15, Method='SW', Eff.only=TRUE,Cost.only=TRUE,	L=10,
+fit1_1<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data[,8:22],
+	Eff=data[,24:38], Patition.times=1:15, Method='SW', Eff.only=TRUE,Cost.only=TRUE,	L=10,
 	lambda=lambda						
 )
 
@@ -96,80 +96,80 @@ fit1_1<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data
 fit2<-nbreg(Followup=data$survival, delta=data$dead,group=data$Trt,		
 	Cost=data$tot.cost,			# observed total cost (recommend to use cost history to better truncate cost in L)
 	Eff=data$tot.QALY,			# observed total effectiveness, default is survival if not provided
-	Method='SW', Z=data[,6:8], Eff.only=TRUE, lambda=lambda, L=10)
+	Method='SW', Z=data[,5:7], Eff.only=TRUE, lambda=lambda, L=10)
 
 
 ## fit covariate-adjusted NBR using SW method, effectiveness is life years
 # does not need to provide Eff, Followup will be used to calculate effectiveness
-fit3<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],
+fit3<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],
 	Eff=NULL,	#equivalently, this option can be removed
-	Patition.times=1:15,Method='SW',Z=data[,6:8], Eff.only=TRUE,lambda=lambda,L=10)
+	Patition.times=1:15,Method='SW',Z=data[,5:7], Eff.only=TRUE,lambda=lambda,L=10)
 
 ## too large L=15 leads to error, need to choose L where a relatively large number of patients are still under observation
-fit3_bigL<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],Patition.times=1:15,
-	Method='SW',Z=data[,6:8], Eff.only=TRUE,lambda=lambda,L=15)
+fit3_bigL<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],Patition.times=1:15,
+	Method='SW',Z=data[,5:7], Eff.only=TRUE,lambda=lambda,L=15)
 
 ## fit covariate-adjusted NBR using Partition (PT) method with QALY as Eff, which leads to smaller SE than SW method
-fit4<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],Eff=data[,25:39],
-	Patition.times=1:15,Method='PT',Z=data[,6:8], Eff.only=TRUE,lambda=lambda,L=10)
+fit4<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],Eff=data[,24:38],
+	Patition.times=1:15,Method='PT',Z=data[,5:7], Eff.only=TRUE,lambda=lambda,L=10)
 
 # compare with naive Complete-case only (CC) method 
-fit4_cc<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],Eff=data[,25:39],Patition.times=1:15,
-	Method='CC',Z=data[,6:8],Eff.only=TRUE,lambda=lambda,L=10)
+fit4_cc<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],Eff=data[,24:38],Patition.times=1:15,
+	Method='CC',Z=data[,5:7],Eff.only=TRUE,lambda=lambda,L=10)
 
 # compare with naive All data ignoring censoring (AL) method 
-fit4_al<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],Eff=data[,25:39],Patition.times=1:15,
-	Method='AL',Z=data[,6:8],Eff.only=TRUE,lambda=lambda,L=10)
+fit4_al<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],Eff=data[,24:38],Patition.times=1:15,
+	Method='AL',Z=data[,5:7],Eff.only=TRUE,lambda=lambda,L=10)
 
 
 ########## code example for dataset with unequal time intervals ############# 
 # assume time intervals in dataset do not have same length (although not true for this dataset)
 # assume cost.1 (QALY.1) is cost/QALY in first 2 years, cost.2 (QALY.2) and cost.3 (QALY.3) are cost/QALY in the following 6 months (other time intervals keep the same)
 # thus, intervals are [0,2],(2,2.5],(2.5,3],(3,4],...,(14,15] for cost and QALY histories
-fit4_unequal<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],Eff=data[,25:39],
+fit4_unequal<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],Eff=data[,24:38],
 	Patition.times=c(2,2.5,3:15),		# set the end times of first 3 intervals as 2, 2.5, and 3, and following end times are increasing by 1 until 15
-	Method='PT',Z=data[,6:8], Eff.only=TRUE,lambda=lambda,L=10)
+	Method='PT',Z=data[,5:7], Eff.only=TRUE,lambda=lambda,L=10)
 
 ########## Possible issue in variable name when only one covariate is provided #######
 ## one covariate only, may drop covariate name if input covariate name is not correctly kept in R 
-fit5_1<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],Eff=data[,25:39],Patition.times=1:15,
+fit5_1<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],Eff=data[,24:38],Patition.times=1:15,
 	Method='PT',
-	Z=data[,6],					#1 covariate in regressions may drop the covariate name by R automatically and show the default name Z 
+	Z=data[,5],					#1 covariate in regressions may drop the covariate name by R automatically and show the default name Z 
 	Eff.only=TRUE, lambda=lambda,L=10)
 
-fit5_2<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],Eff=data[,25:39],Patition.times=1:15,
+fit5_2<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],Eff=data[,24:38],Patition.times=1:15,
 	Method='PT',
-	Z=data.frame(Age65=data[,6]),					#can fix it by re-assign the name
+	Z=data.frame(Age65=data[,5]),					#can fix it by re-assign the name
 	Eff.only=TRUE, lambda=lambda,L=10)
 
-fit5_3<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],Eff=data[,25:39],Patition.times=1:15,
+fit5_3<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],Eff=data[,24:38],Patition.times=1:15,
 	Method='PT',
-	Z=data[,6,drop=FALSE],						#or fix it by using drop=FALSE option
+	Z=data[,5,drop=FALSE],						#or fix it by using drop=FALSE option
 	Eff.only=TRUE, lambda=lambda,L=10)
 
 
 ######### fit covariate-adjusted NBR with interactions between treatment and covariates  #######
-fit6<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data[,9:23], Eff=data[,25:39], Patition.times=1:15, 
-	Method='PT',Z=data[,6:8],
-	interaction=c("LBBB"),			#Treatment-LBBB interaction, must belong main effects Z, can add more, eg, interaction=c("Age65","LBBB"), or interaction=names(data[,6:8])
+fit6<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data[,8:22], Eff=data[,24:38], Patition.times=1:15, 
+	Method='PT',Z=data[,5:7],
+	interaction=c("LBBB"),			#Treatment-LBBB interaction, must belong main effects Z, can add more, eg, interaction=c("Age65","LBBB"), or interaction=names(data[,5:7])
 	Eff.only=TRUE, lambda=lambda, L=10)
 
 # include both Treatment x LBBB and Treatment x Female interactions 
-fit6_2<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data[,9:23], Eff=data[,25:39], Patition.times=1:15, 
-	Method='PT',Z=data[,6:8],
+fit6_2<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data[,8:22], Eff=data[,24:38], Patition.times=1:15, 
+	Method='PT',Z=data[,5:7],
 	interaction=c("LBBB","Female"),
 	Eff.only=TRUE, lambda=lambda, L=10)
 
 # include interactions between treatment and all 3 covariate
-fit6_3<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data[,9:23], Eff=data[,25:39], Patition.times=1:15, 
-	Method='PT',Z=data[,6:8],
-	interaction=names(data[,6:8]),
+fit6_3<-nbreg(Followup=data$survival, delta=data$dead, group=data$Trt, Cost=data[,8:22], Eff=data[,24:38], Patition.times=1:15, 
+	Method='PT',Z=data[,5:7],
+	interaction=names(data[,5:7]),
 	Eff.only=TRUE, lambda=lambda, L=10)
 
 ############# Doubly Robust method ############
-fit7<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],Eff=data[,25:39],Patition.times=1:15,
-	Method='PT',Z=data[,6:8],interaction=c("LBBB"),
-	PS.Z=data[,6:8],			#all covariates are used to estimate propensity scores using logistic regression, will fit unadjusted logistic if not provided
+fit7<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],Eff=data[,24:38],Patition.times=1:15,
+	Method='PT',Z=data[,5:7],interaction=c("LBBB"),
+	PS.Z=data[,5:7],			#all covariates are used to estimate propensity scores using logistic regression, will fit unadjusted logistic if not provided
 	Doubly.Robust=TRUE,		#do DR method to estimate causal average incremental net benefit (INB)
 	Eff.only=TRUE,lambda=lambda,L=10)
 
@@ -186,15 +186,17 @@ summary(fit7[[1]]$PS)
 
 # histograms for propensity scores
 require(ggplot2)	
-ggplot(data,aes(x=fit7[[1]]$PS))+geom_histogram()+facet_grid(rows = fit7[[1]]$group)+ 
-	xlab("Estimated Propensity Score")+xlim(c(0,1))
+fit7[[1]]$group <- factor(fit7[[1]]$group, levels = c("0", "1"), 
+                  labels = c("Trt=0", "Trt=1"))		#add labels for group
+ggplot(data,aes(x=fit7[[1]]$PS))+geom_histogram(binwidth =0.1)+
+	facet_grid(rows = fit7[[1]]$group)+ 
+	xlab("Estimated propensity score")+ylab("Frequency")+xlim(c(0,1))
 
-
-# DR method with regressions including all possible treatment-covariate interactions, equivalent to fitting regressions separately in each treatment group  
-fit8<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:23],Eff=data[,25:39],Patition.times=1:15,
-	Method='PT',Z=data[,6:8],
-	interaction=names(data[,6:8]),	#include all treatment-covariate interactions 
-	PS.Z=data[,6:8], Doubly.Robust=TRUE, Eff.only=TRUE,lambda=lambda,L=10)
+# DR method with regressions including all possible treatment-covariate interactions (equivalent to fitting regressions separately in each treatment group)  
+fit8<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,8:22],Eff=data[,24:38],Patition.times=1:15,
+	Method='PT',Z=data[,5:7],
+	interaction=names(data[,5:7]),	#include all treatment-covariate interactions 
+	PS.Z=data[,5:7], Doubly.Robust=TRUE, Eff.only=TRUE,lambda=lambda,L=10)
 
 
 ############### Compare results using the true uncensored data, 4 methods are equivalent to OLS when no censoring ###########
@@ -202,22 +204,22 @@ fit8<-nbreg(Followup=data$survival,delta=data$dead,group=data$Trt,Cost=data[,9:2
 data.uncensored=read.csv("True_CEdata.csv")
 head(data.uncensored)		#show first 5 rows of data
 data.uncensored=data.uncensored %>% mutate(across(c(Age65,LBBB,Female), as.factor))
-data.uncensored[,9:24]=data.uncensored[,9:24]/1000	# divide all costs by 1000 so that cost is in $1000
+data.uncensored[,8:23]=data.uncensored[,8:23]/1000	# divide all costs by 1000 so that cost is in $1000
 
 # covariate-adjusted regression without interaction
 fit9<-nbreg(Followup=data.uncensored$survival,delta=data.uncensored$dead,group=data.uncensored$Trt,
-	Cost=data.uncensored[,9:23],Eff=data.uncensored[,25:39],Patition.times=1:15,
-	Method='CC',Z=data.uncensored[,6:8],Eff.only=TRUE,lambda=lambda,L=10)
+	Cost=data.uncensored[,8:22],Eff=data.uncensored[,24:38],Patition.times=1:15,
+	Method='CC',Z=data.uncensored[,5:7],Eff.only=TRUE,lambda=lambda,L=10)
 
 # covariate-adjusted regression with interaction
 fit10<-nbreg(Followup=data.uncensored$survival,delta=data.uncensored$dead,group=data.uncensored$Trt,
-	Cost=data.uncensored[,9:23],Eff=data.uncensored[,25:39],Patition.times=1:15,
-	Method='CC',Z=data.uncensored[,6:8],interaction=c("LBBB"),Eff.only=TRUE,lambda=lambda,L=10)
+	Cost=data.uncensored[,8:22],Eff=data.uncensored[,24:38],Patition.times=1:15,
+	Method='CC',Z=data.uncensored[,5:7],interaction=c("LBBB"),Eff.only=TRUE,lambda=lambda,L=10)
 
 # DR method
 fit11<-nbreg(Followup=data.uncensored$survival,delta=data.uncensored$dead,group=data.uncensored$Trt,
-	Cost=data.uncensored[,9:23],Eff=data.uncensored[,25:39],Patition.times=1:15,
-	Method='CC',Z=data.uncensored[,6:8],interaction=c("LBBB"),PS.Z=data.uncensored[,6:8], Doubly.Robust=TRUE,Eff.only=TRUE,lambda=lambda,L=10)
+	Cost=data.uncensored[,8:22],Eff=data.uncensored[,24:38],Patition.times=1:15,
+	Method='CC',Z=data.uncensored[,5:7],interaction=c("LBBB"),PS.Z=data.uncensored[,5:7], Doubly.Robust=TRUE,Eff.only=TRUE,lambda=lambda,L=10)
 
 ############ CEAC plot ################
 

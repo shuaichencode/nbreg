@@ -30,21 +30,21 @@ data<-sim.CostEff.Obs(n=n,		#sample size
 )
 
 # save the observed censored data
-datacsv=data.frame(id=1:n,survival=data$Follow.up,dead=data$Death,censor=1-data$Death,Trt=data$Trt,data$Covariate,
+datacsv=data.frame(id=1:n,survival=data$Follow.up,dead=data$Death,Trt=data$Trt,data$Covariate,
 	cost=data$Cost.grp.obs,tot.cost=apply(data$Cost.grp.obs,1,sum),
 	QALY=data$QASurv.grp.obs,tot.QALY=apply(data$QASurv.grp.obs,1,sum)
 	)
 write.csv(datacsv,"Censored_CEdata.csv",row.names=FALSE)
 
 # save true uncensored data for comparison
-datacsv.true=data.frame(id=1:n,survival=data$TL,dead=rep(1,n),censor=rep(0,n),Trt=data$Trt,data$Covariate,
+datacsv.true=data.frame(id=1:n,survival=data$TL,dead=rep(1,n),Trt=data$Trt,data$Covariate,
 	cost=data$Cost_true,tot.cost=apply(data$Cost_true,1,sum),
 	QALY=data$QALY_true,tot.QALY=apply(data$QALY_true,1,sum)
 	)
 write.csv(datacsv.true,"True_CEdata.csv",row.names=FALSE)
 
 
-####  Use potential outcomes (counterfactuals) to calculate true ICER and true INBs to help evaluate methods ##########
+####  Use potential outcomes (counterfactuals) to calculate true ICER and true INBs to evaluate methods ##########
 lambda=seq(0,6,3)
 
 #True ICER within 10-year
