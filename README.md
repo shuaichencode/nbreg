@@ -6,10 +6,7 @@ Sample R code to illustrate how to perform net-benefit regression methods using 
 ARTICLE:    
 A Tutorial on Net-benefit Regression for Real World Cost-effectiveness Analysis Using Administrative Data (Shuai Chen, Heejung Bang, and Jeffrey S. Hoch) 
 
-CODE AUTHOR:  
-Shuai Chen  <shschen@ucdavis.edu> 
-Division of Biostatistics, Department of Public Health Sciences, University of California, Davis         
-    
+  
 ------------------------------------------------------------------------------
 
 FILES:    
