@@ -3,7 +3,7 @@
 DESCRIPTION:    
 Sample R code to illustrate how to perform net-benefit regression methods using a simulated censored observational cost-effectiveness data
 
-
+nbreg is an early version of NetBenReg package (https://github.com/shuaichencode/NetBenReg)
 ------------------------------------------------------------------------------
 
 FILES:    
