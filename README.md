@@ -7,7 +7,7 @@ nbreg is an early version of NetBenReg package (https://github.com/shuaichencode
 
 ------------------------------------------------------------------------------
 
-# FILES:    
+# FILES    
 Censored_CEdata.csv: The simulated censored data  
 
 True_CEdata.csv: The true uncensored data, used to evaluate methods    
